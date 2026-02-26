@@ -107,7 +107,7 @@ int main() {
     
     printf("CPU Features detected at compile time:\n");
     #ifdef __SSE4_2__
-    printf("  ✅ SSE4.2 supported\n");
+    printf("SSE4.2 supported\n");
     #endif
     printf("\n");
     
