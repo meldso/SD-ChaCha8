@@ -21,7 +21,7 @@ SD-ChaCha8 is a modified 8-round ARX pseudo-random number generator that replace
 
 ## Detailed Benchmark Results
 
-System: macOS Tahoe (Rosetta 2 x86_64 emulation)
+System: Intel Core i7-11800H, GCC -O3 -march=native
 Compiler: GCC -O3 -march=native
 
 | Iterations | Scalar (M/sec) | SSE4.2 (M/sec) | Speedup |
@@ -50,6 +50,10 @@ Total iterations tested: 1.91 billion
 - Designed for ARX-committed pipelines requiring non-linear generation
 - Not a replacement for throughput-optimized generators (xoshiro256++, PCG64)
 - Requires AVX2 support for maximum performance
+
+## Citation
+
+If you use this code in your research, please cite:
 
 ## Contact
 
