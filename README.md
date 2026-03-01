@@ -1,63 +1,147 @@
 # SD-ChaCha8
 
-Benchmark results for SD-ChaCha8 PRNG.
-
-## Results
-
-Scalar: 31.55 M/sec
-SSE4.2: 35.94 M/sec
-Speedup: 1.14x
+A closed-loop ARX pseudo-random number generator with state-dependent rotations for accelerated diffusion convergence.
 
 ## Overview
 
-SD-ChaCha8 is a modified 8-round ARX pseudo-random number generator that replaces fixed rotation constants with state-dependent values, eliminating early-round geometric dead zones.
+SD-ChaCha8 is an 8-round Addition-Rotation-XOR (ARX) PRNG that replaces fixed rotation constants with dynamically derived, state-dependent values. This architectural innovation eliminates geometric dead zones inherent in static rotation schedules, achieving full Strict Avalanche Criterion (SAC) compliance in 2 double-rounds versus 5+ for standard ChaCha20.
 
 ## Key Features
 
-- State-dependent rotations eliminate early-round geometric dead zones
-- 55% improvement in single-pass Hamming weight diffusion over standard ChaCha
-- Strict Avalanche Criterion (SAC) achieved by round 2
-- SIMD-optimized implementations: AVX2 (1.259 cycles/byte) and LUT (2.861 cycles/byte)
+- **Entropy-dependent routing**: Rotation magnitudes derived from internal state eliminate fixed dead zones
+- **Accelerated diffusion**: 55% improvement in first-pass Hamming weight diffusion over standard ChaCha20
+- **Rigorous validation**: Full pass of TestU01 BigCrush (160 tests), topological data analysis, Wigner-Dyson spectral statistics
+- **Cross-platform**: Validated on both ARM64 (Apple M3) and x86-64 architectures
+- **SIMD-optimized**: Barrett reduction enables efficient vectorization
 
-## Detailed Benchmark Results
+## Performance (Apple M3, ARM64)
 
-System: Intel Core i7-11800H, GCC -O3 -march=native
-Compiler: GCC -O3 -march=native
+| Generator | Cycles/Byte | vs ChaCha20 | SAC Convergence |
+|-----------|-------------|-------------|-----------------|
+| **SD-ChaCha8 Barrett** | **1.681** | **1.67x faster** | **2 double-rounds** |
+| SD-ChaCha8 original | 2.649 | 1.06x faster | 2 double-rounds |
+| ChaCha12 | 2.077 | 1.35x faster | 3-4 double-rounds |
+| ChaCha20 | 2.810 | 1.00x (baseline) | 5+ double-rounds |
+| ChaCha8 (static) | 1.914 | 1.47x faster | Incomplete |
 
-| Iterations | Scalar (M/sec) | SSE4.2 (M/sec) | Speedup |
-|------------|----------------|----------------|---------|
-| 10M | 31.61 | 35.94 | 1.14x |
-| 50M | 31.22 | 35.89 | 1.15x |
-| 100M | 31.63 | 35.95 | 1.14x |
-| 250M | 31.59 | 35.95 | 1.14x |
-| 500M | 31.63 | 35.95 | 1.14x |
-| 1000M | 31.62 | 35.95 | 1.14x |
+**Platform**: Apple M3 (ARM64), Clang -O3 -march=native, clock_gettime
 
-Total iterations tested: 1.91 billion
+## Statistical Validation
+
+### TestU01 BigCrush
+- **Status**: All 160 tests passed
+- **Data processed**: ~10 TB per variant
+- **Variants tested**: Original (modulo) and Barrett (optimized)
+- Complete results in `/tests/bigcrush/`
+
+### Additional Validation
+- **Strict Avalanche Criterion**: Achieved by round 2 (vs round 5+ for ChaCha20)
+- **Topological uniformity**: Vietoris-Rips persistent homology matches true-random baselines
+- **Spectral statistics**: Eigenvalue spacing follows Wigner-Dyson GOE distribution
+- **SGLD benchmark**: Posterior exploration matches OS entropy baseline
+
+## When to Use SD-ChaCha8
+
+### Use when:
+- Pipeline requires ARX non-linearity to eliminate GF(2) hyperplane artifacts
+- ChaCha20 is a throughput bottleneck
+- Naively truncating to ChaCha8 degrades statistical quality
+- SAC compliance needed at reduced round count
+
+### Do NOT use when:
+- Raw throughput is paramount (use xoshiro256++, PCG64 instead)
+- Cryptographic security required (SD-ARX has data-dependent timing)
+- Linear generators suffice for your application
 
 ## Implementation Variants
 
-| Variant | Cycles/Byte | Speed vs ChaCha20 |
-|---------|-------------|-------------------|
-| SD-ChaCha8 AVX2 | 1.259 | 2.72x faster |
-| SD-ChaCha8 LUT | 2.861 | 1.20x faster |
-| ChaCha20 | 3.430 | 1.00x (baseline) |
-| SD-ChaCha8 scalar | 10.846 | 0.32x |
+### 1. Barrett Scalar (Recommended for most users)
+```c
+// 1.681 cycles/byte on ARM64
+// Uses Barrett reduction: (x mod 31) via multiply-shift
+```
 
-## Important Notes
+### 2. Original (Modulo-based)
+```c
+// 2.649 cycles/byte on ARM64
+// Direct modulo operation, portable but slower
+```
 
-- Not cryptographic - Do not use for security applications
-- Designed for ARX-committed pipelines requiring non-linear generation
-- Not a replacement for throughput-optimized generators (xoshiro256++, PCG64)
-- Requires AVX2 support for maximum performance
+### 3. SIMD (Advanced)
+```c
+// ARM NEON / x86 AVX2 vectorization
+// Requires careful handling of per-lane variable rotations
+```
+
+## Building
+```bash
+# Scalar implementation
+gcc -O3 -march=native sd_chacha8_barrett.c -o sd_chacha8
+
+# With benchmarks
+make benchmark
+
+# Run full test suite
+make test
+```
+
+## Usage Example
+```c
+#include "sd_chacha8.h"
+
+// Initialize state
+sd_chacha8_state state;
+sd_chacha8_init(&state, key, nonce);
+
+// Generate random bytes
+uint8_t output[64];
+sd_chacha8_generate(&state, output, 64);
+```
+
+## Repository Structure
+```
+/src/           - Core implementations (Barrett, original, SIMD)
+/tests/         - TestU01, validation scripts, statistical tests
+/benchmarks/    - Performance measurement tools
+/analysis/      - Diffusion analysis, TDA, spectral statistics
+/docs/          - Paper, supplementary materials
+```
 
 ## Citation
 
-If you use this code in your research, please cite:
+If you use SD-ChaCha8 in your research, please cite:
+```bibtex
+@article{dsouza2025sdarx,
+  author = {D'Souza, Meldon},
+  title = {SD-ARX: A Closed-Loop Architecture for Accelerated Diffusion in ARX Networks},
+  journal = {[Under Review]},
+  year = {2025}
+}
+```
+
+## Important Disclaimers
+
+**Not for cryptographic use**: Data-dependent timing of dynamic rotations introduces side-channel vulnerabilities. SD-ARX is designed for **non-cryptographic** random number generation in simulation and stochastic optimization.
+
+**Platform-specific performance**: Throughput values are measured on Apple M3 (ARM64). x86-64 performance may differ due to different instruction latencies and SIMD widths.
+
+**Architectural niche**: SD-ChaCha8 targets ARX-committed pipelines. For throughput-critical workloads without ARX requirements, linear generators (xoshiro256++, PCG64) are significantly faster.
+
+## License
+
 
 ## Contact
 
-Meldon D'Souza
-Department of Statistics and Data Science
-Christ (Deemed-to-be) University, Bengaluru, India
+**Meldon D'Souza**  
+Department of Statistics and Data Science  
+Christ (Deemed-to-be) University, Bengaluru, India  
 Email: meldon.dsouza@mscsai.christuniversity.in
+
+## Acknowledgments
+
+Based on ChaCha20 by D. J. Bernstein. TestU01 validation framework by P. L'Ecuyer and R. Simard.
+
+---
+
+**Last updated**: March 2025  
+**Status**: Research implementation, validation complete, paper under review
