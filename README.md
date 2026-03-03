@@ -54,7 +54,6 @@ d[i+1] = (d[i] XOR a[i+1]) <<< r         // Apply state-dependent rotation
 - **Strict Avalanche Criterion**: Achieved by round 2 (vs round 5+ for ChaCha20)
 - **Topological uniformity**: Vietoris-Rips persistent homology matches true-random baselines
 - **Spectral statistics**: Eigenvalue spacing follows Wigner-Dyson GOE distribution
-- **SGLD benchmark**: Posterior exploration matches OS entropy baseline
 
 ## When to Use SD-ChaCha8
 
