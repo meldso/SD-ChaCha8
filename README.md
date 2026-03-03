@@ -38,7 +38,7 @@ d[i+1] = (d[i] XOR a[i+1]) <<< r         // Apply state-dependent rotation
 | SD-ChaCha8 (modulo) | 2.649 | 1.06x faster | 2 double-rounds |
 | ChaCha20 | 2.810 | 1.00x (baseline) | 2 double-rounds |
 | ChaCha12 | 2.077 | 1.35x faster | 3-4 double-rounds |
-| ChaCha8 (static) | 1.914 | 1.47x faster | Incomplete |
+| ChaCha8 | 1.914 | 1.47x faster | Incomplete |
 
 **Platform**: Apple M3 (ARM64), Clang -O3 -march=native, clock_gettime
 
