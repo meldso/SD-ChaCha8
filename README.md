@@ -128,7 +128,7 @@ sd_chacha8_generate(&state, output, 64);
 
 If you use SD-ChaCha8 in your research, please cite:
 ```bibtex
-@article{dsouza2025sdarx,
+@article{dsouza2026sdarx,
   author = {D'Souza, Meldon},
   title = {SD-ARX: A Closed-Loop Architecture for Accelerated Diffusion in ARX Networks},
   journal = {[Under Review]},
