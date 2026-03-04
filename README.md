@@ -2,6 +2,12 @@
 
 A novel closed-loop architecture for ARX primitives that replaces static rotation constants with state-dependent values, fundamentally accelerating diffusion convergence.
 
+## v1.0 (Community Edition) — DONE
+- Scalar + SIMD reference implementations
+- Benchmark harness & diffusion analytics (SAC/SADM)
+- TestU01 BigCrush runs and logs
+- Apache‑2.0 licensing; citation metadata
+
 > **Status**: Community Edition (Apache‑2.0). Enterprise modules (HPC/GPU diagnostics, AVX‑512/NEON kernels, structural MC tooling) available under commercial terms—see **Enterprise Edition** below.
 
 ## Overview
