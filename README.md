@@ -132,7 +132,7 @@ If you use SD-ChaCha8 in your research, please cite:
   author = {D'Souza, Meldon},
   title = {SD-ARX: A Closed-Loop Architecture for Accelerated Diffusion in ARX Networks},
   journal = {[Under Review]},
-  year = {2025}
+  year = {2026}
 }
 ```
 
@@ -155,7 +155,7 @@ This project uses a dual-licensing model.
 For enterprise licensing, contact meldon2000@gmail.com
 
 
-## Contact
+## For Research Queries, Contact
 
 **Meldon D'Souza**  
 Department of Statistics and Data Science  
