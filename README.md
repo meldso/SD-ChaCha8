@@ -8,7 +8,7 @@ A novel closed-loop architecture for ARX primitives that replaces static rotatio
 - TestU01 BigCrush runs and logs
 - Apache‑2.0 licensing; citation metadata
 
-> **Status**: Community Edition (Apache‑2.0). Enterprise modules (HPC/GPU diagnostics, AVX‑512/NEON kernels, structural MC tooling) available under commercial terms—see **Enterprise Edition** below.
+> **Status**: Community Edition (Apache‑2.0). Available under commercial terms—see **Enterprise Edition** below.
 
 ## Overview
 
